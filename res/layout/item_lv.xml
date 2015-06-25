@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text=""
+    android:textSize="20sp"
+    android:paddingTop="7dp"
+    android:paddingBottom="7dp"
+    android:singleLine="true"
+    android:ellipsize="marquee"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:marqueeRepeatLimit="1"
+    android:layout_marginLeft="10dp"
+    android:gravity="center"
+    android:layout_marginRight="10dp"/>
