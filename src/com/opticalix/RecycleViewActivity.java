@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.opticalix.base.BaseActivity;
 import com.opticalix.widget_reminder.R;
 
 import java.util.ArrayList;

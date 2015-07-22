@@ -96,18 +96,18 @@
         <!--android:layout_height="match_parent"/>-->
         <!--</LinearLayout>-->
         <!--</HorizontalScrollView>-->
-        <GridView
-            android:id="@+id/grid_recent"
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_below="@id/llyt"
             android:numColumns="2"
             android:descendantFocusability="blocksDescendants"
-            android:verticalSpacing="10dp"
-            android:horizontalSpacing="10dp"
             android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            >
 
-        </GridView>
+        </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
 </RelativeLayout>

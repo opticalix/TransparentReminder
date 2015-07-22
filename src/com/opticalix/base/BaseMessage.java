@@ -1,4 +1,4 @@
-package com.opticalix;
+package com.opticalix.base;
 
 import android.text.TextUtils;
 

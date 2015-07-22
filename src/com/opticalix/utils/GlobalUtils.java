@@ -1,4 +1,4 @@
-package com.opticalix;
+package com.opticalix.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
