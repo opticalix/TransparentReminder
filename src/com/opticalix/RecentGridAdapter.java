@@ -1,14 +1,14 @@
 package com.opticalix;
 
-import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
+import com.opticalix.utils.GlobalUtils;
 import com.opticalix.widget_reminder.R;
 
 import java.util.Arrays;
@@ -23,9 +23,11 @@ public class RecentGridAdapter extends BaseAdapter {
     private List<String> mList;
     private int mGridHeight = 0;
     private int mGridSpacing = 0;
-    private final int line = 3;
+    private final int mRowCount = 3;
+    private GlobalUtils.HeightUtil mHeightUtil;
 
     public RecentGridAdapter(Context context, int resource, List<String> contentList, int gridHeight, int spacing) {
+        mHeightUtil = new GlobalUtils.HeightUtil<AbsListView.LayoutParams>();
         this.mContext = context;
         this.mResource = resource;
         this.mList = contentList;
@@ -34,6 +36,7 @@ public class RecentGridAdapter extends BaseAdapter {
     }
 
     public RecentGridAdapter(Context context, int resource, String[] contentArr, int gridHeight, int spacing) {
+        mHeightUtil = new GlobalUtils.HeightUtil<AbsListView.LayoutParams>();
         this.mContext = context;
         this.mResource = resource;
         this.mList = Arrays.asList(contentArr);
@@ -67,13 +70,9 @@ public class RecentGridAdapter extends BaseAdapter {
         if (mList.size() > 0) {
             view.setBackgroundResource(R.drawable.selector_grid_item_bg);
             view.setVisibility(View.VISIBLE);
-            AbsListView.LayoutParams layoutParams = (AbsListView.LayoutParams) view.getLayoutParams();
-            if (layoutParams == null) {
-                layoutParams = new AbsListView.LayoutParams(-1, getHeight());
-            }
-            layoutParams.height = getHeight();
-            view.setLayoutParams(layoutParams);
-            view.requestLayout();
+
+            //TODO unchecked
+            mHeightUtil.resizeHeight(view, -1, getHeight(), new AbsListView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
             RecentTextView tv = (RecentTextView) view.findViewById(R.id.tv_item);
             tv.setText(mList.get(position));
@@ -82,7 +81,9 @@ public class RecentGridAdapter extends BaseAdapter {
     }
 
     private int getHeight() {
-        return (mGridHeight - mGridSpacing * (line - 1)) / line;
+        int hei =  (mGridHeight - mGridSpacing * (mRowCount - 1)) / mRowCount;
+        Log.d("opticalix", "GridAdapter height:"+hei);
+        return hei;
     }
 
 }

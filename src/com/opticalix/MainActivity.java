@@ -28,11 +28,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.opticalix.base.BaseActivity;
-import com.opticalix.download.DownloadManagerDemo;
 import com.opticalix.utils.GlobalUtils;
 import com.opticalix.widget_reminder.R;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -45,8 +45,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private final int max = 6;
     private String[] mSpContentArr;
     private boolean mPostMsg;
-    private int mGridViewHeight;
-    private int mGridViewVerticalSpacing;
+    private int mRecycleViewHeight;
+    private int mSpacing;
     private MainActivity mContext;
     private RecyclerView mRecycleView;
     private List<String> mSpContentList;
@@ -84,7 +84,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             SystemBarTintManager tintManager = new SystemBarTintManager(this);
             tintManager.setStatusBarTintColor(getStatusBarColor());
             tintManager.setStatusBarTintEnabled(true);
-        }else{
+        } else {
             //FIXME padding
         }
     }
@@ -109,9 +109,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         switch (item.getItemId()) {
             case R.id.btn_menu_clear:
                 clearRecent();
-
-                //FIXME
-                startActivity(new Intent(this, DownloadManagerDemo.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -127,8 +124,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus && !mPostMsg) {
+            mRecycleViewHeight = mRecycleView.getHeight();
+            mSpacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.0f, MainActivity.this.getResources().getDisplayMetrics());
             mPostMsg = true;
-
             //init RecycleView
             initRecycleView();
         }
@@ -178,8 +176,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             @Override
             public void onOkClick() {
                 mSpContentArr = new String[]{""};
-                mRecycleAdapter = new RecycleAdapter(Arrays.asList(mSpContentArr));
+                mRecycleAdapter = new RecycleAdapter(Arrays.asList(mSpContentArr), mRecycleViewHeight, mSpacing);
                 GlobalUtils.saveToSp(MainActivity.this, "");
+//                mRecycleAdapter.notifyItemMoved(0, max - 1);
+                mRecycleView.setAdapter(mRecycleAdapter);
             }
         });
     }
@@ -263,7 +263,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         mRecycleView.setHasFixedSize(true);
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecycleView.setLayoutManager(staggeredGridLayoutManager);
-        mRecycleAdapter = new RecycleAdapter(mSpContentList);
+        mRecycleAdapter = new RecycleAdapter(mSpContentList, mRecycleViewHeight, mSpacing);
         mRecycleAdapter.setOnRecycleItemClickListener(new OnRecycleItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -272,8 +272,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
             @Override
             public void onItemLongClick(int position) {
-                mSpContentList.remove(position);
                 removeFromSp(mSpContentList.get(position));
+                mSpContentList.remove(position);
                 mRecycleAdapter.notifyItemRemoved(position);
             }
         });
@@ -289,29 +289,39 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         public ViewHolder(View itemView) {
             super(itemView);
             mRecentTextView = (RecentTextView) itemView.findViewById(R.id.tv_item);
-            if(mRecentTextView.getLineCount() >= 1){
-                mRecentTextView.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.0f,  MainActivity.this.getResources().getDisplayMetrics()), 1.0f);
+            if (mRecentTextView.getLineCount() >= 1) {
+                mRecentTextView.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.0f, MainActivity.this.getResources().getDisplayMetrics()), 1.0f);
             }
         }
     }
 
     class RecycleAdapter extends RecyclerView.Adapter<ViewHolder> {
         private List<String> mData;
+        private GlobalUtils.HeightUtil mHeightUtil;
+        private int mRecycleViewHeight;
+        private int mSpace;
 
-        public RecycleAdapter(List<String> data) {
+        public RecycleAdapter(List<String> data, int recycleViewHeight, int space) {
             mData = data;
+            this.mRecycleViewHeight = recycleViewHeight;
+            this.mSpace = space;
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
+
             View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_grid, viewGroup, false);
-            if(mData == null || mData.size() == 0 || (mData.size() == 1 && mData.get(0).equals(""))){
+            if (mData == null || mData.size() == 0 || (mData.size() == 1 && mData.get(0).equals(""))) {
                 view.setBackgroundColor(0x00ffffff);
                 view.setVisibility(View.GONE);
             }
             ViewHolder viewHolder = new ViewHolder(view);
 
-            view.setMinimumHeight(200);
+//            view.setMinimumHeight(200);
+            mHeightUtil = new GlobalUtils.HeightUtil<AbsListView.LayoutParams>();
+            int itemHeight = mHeightUtil.calcItemHeight(mRecycleViewHeight, mSpace, 3);
+            mHeightUtil.resizeHeight(view, -1, itemHeight, new GridLayoutManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
             //listener
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
