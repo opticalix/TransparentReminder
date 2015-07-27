@@ -15,8 +15,8 @@ import de.greenrobot.event.EventBus;
  */
 public class RecentTextView extends TextView {
     private boolean mInitFinish;
-    private int mWidth;
-    private int mHeight;
+    private int width;
+    private int height;
     private int mGridViewHeight;
 
     public RecentTextView(Context context) {
@@ -59,4 +59,5 @@ public class RecentTextView extends TextView {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
     }
+
 }

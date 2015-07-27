@@ -14,15 +14,15 @@ public class GlobalUtils {
 
     public static void saveToSp(Context cxt, String value) {
         SharedPreferences sp = cxt.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
-        sp.edit().putString(KEY, value).commit();
+        sp.edit().putString(KEY, value).apply();
     }
 
     public static void addToSp(Context cxt, String value) {
         SharedPreferences sp = cxt.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
-        sp.edit().putString(KEY, value + DIVIDER + sp.getString(KEY, "")).commit();
+        sp.edit().putString(KEY, value + DIVIDER + sp.getString(KEY, "")).apply();
     }
 
-    public static String resotreFromSp(Context cxt) {
+    public static String restoreFromSp(Context cxt) {
         SharedPreferences sp = cxt.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
         return sp.getString(KEY, "");
     }

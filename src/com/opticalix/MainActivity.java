@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,6 +32,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.opticalix.base.BaseActivity;
 import com.opticalix.utils.GlobalUtils;
@@ -51,6 +54,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private RecyclerView mRecycleView;
     private List<String> mSpContentList;
     private RecycleAdapter mRecycleAdapter;
+    private boolean mAllowDelete;
+    private int mLastItemPos = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +72,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         mToolBar.setPadding(mToolBar.getPaddingLeft(), mToolBar.getPaddingTop() + GlobalUtils.getStatusHeight(this), mToolBar.getPaddingRight(), mToolBar.getPaddingBottom());
         mToolBar.requestLayout();
 
-        String spContents = GlobalUtils.resotreFromSp(this);
+        String spContents = GlobalUtils.restoreFromSp(this);
         mSpContentArr = spContents.split(GlobalUtils.DIVIDER);
         mOkBtn.setOnClickListener(this);
         mClearBtn.setOnClickListener(this);
@@ -110,6 +115,16 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             case R.id.btn_menu_clear:
                 clearRecent();
                 return true;
+            case R.id.btn_menu_delete:
+                Log.d("opticalix", "-=-= delete item isChecked: " + item.isChecked());
+//                item.setChecked(!item.isChecked());
+//                int[] checkState = new int[] {android.R.attr.state_checked};
+//                int[] idleState = new int[] {};
+//                item.getIcon().setState(!item.isChecked() ? idleState : checkState);
+                mAllowDelete = !mAllowDelete;
+                item.setIcon(mAllowDelete ? R.drawable.icon_white_delete_checked : R.drawable.icon_white_delete);
+                mRecycleAdapter.notifyDataSetChanged();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -125,7 +140,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus && !mPostMsg) {
             mRecycleViewHeight = mRecycleView.getHeight();
-            mSpacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.0f, MainActivity.this.getResources().getDisplayMetrics());
+            mSpacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.0f, MainActivity.this.getResources().getDisplayMetrics());
             mPostMsg = true;
             //init RecycleView
             initRecycleView();
@@ -153,6 +168,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     });
                     return;
                 } else {
+                    //TODO 询问是否替换
                     addToSp(trimContent);
                 }
                 Intent intent = new Intent(
@@ -185,7 +201,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     private void addToSp(String trimContent) {
-        String spContents = GlobalUtils.resotreFromSp(this);
+        String spContents = GlobalUtils.restoreFromSp(this);
         String[] spContentArr = spContents.split(GlobalUtils.DIVIDER);
         List<String> spContentList = Arrays.asList(spContentArr);
         if (spContentList.contains(trimContent)) {
@@ -212,7 +228,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     public void removeFromSp(String trimContent) {
-        String spContents = GlobalUtils.resotreFromSp(this);
+        String spContents = GlobalUtils.restoreFromSp(this);
         String[] spContentArr = spContents.split(GlobalUtils.DIVIDER);
         List<String> spContentList = Arrays.asList(spContentArr);
         if (spContentList.contains(trimContent)) {
@@ -253,6 +269,16 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     @Override
     public void onBackPressed() {
         popSoftKeyboard(this, mEditText, false);
+        if(mAllowDelete){
+            mAllowDelete = !mAllowDelete;
+            MenuItem item = mToolBar.getMenu().getItem(0);
+            if(item.getItemId() != R.id.btn_menu_delete){
+                throw new RuntimeException("get the wrong menu btn!");
+            }
+            item.setIcon(mAllowDelete ? R.drawable.icon_white_delete_checked : R.drawable.icon_white_delete);
+            mRecycleAdapter.notifyDataSetChanged();
+            return;
+        }
         super.onBackPressed();
     }
 
@@ -266,15 +292,26 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         mRecycleAdapter = new RecycleAdapter(mSpContentList, mRecycleViewHeight, mSpacing);
         mRecycleAdapter.setOnRecycleItemClickListener(new OnRecycleItemClickListener() {
             @Override
-            public void onItemClick(int position) {
-                mEditText.setText(mSpContentList.get(position));
+            public void onItemClick(View v) {
+                int position = (int) v.getTag();
+                if(v.getId() == R.id.tv_item){
+                    mLastItemPos = position;
+                    mEditText.setText(mSpContentList.get(position));
+                    mEditText.setSelection(mEditText.getText().toString().length());
+                }else if(v.getId() == R.id.iv_delete_layer){
+                    if(mAllowDelete){
+                        removeFromSp(mSpContentList.get(position));
+                        mSpContentList.remove(position);
+                        mRecycleAdapter.notifyItemRemoved(position);
+//                        mRecycleAdapter.notifyDataSetChanged();
+                        mRecycleAdapter.notifyItemRangeChanged(0 ,max-1);
+                    }
+                }
             }
 
             @Override
-            public void onItemLongClick(int position) {
-                removeFromSp(mSpContentList.get(position));
-                mSpContentList.remove(position);
-                mRecycleAdapter.notifyItemRemoved(position);
+            public void onItemLongClick(View v) {
+
             }
         });
         mRecycleView.setAdapter(mRecycleAdapter);
@@ -285,19 +322,23 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     class ViewHolder extends RecyclerView.ViewHolder {
         RecentTextView mRecentTextView;
+        ImageView mDeleteLayer;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mRecentTextView = (RecentTextView) itemView.findViewById(R.id.tv_item);
+            mDeleteLayer = (ImageView) itemView.findViewById(R.id.iv_delete_layer);
+            if(mRecentTextView == null || mDeleteLayer == null)
+                throw new RuntimeException("viewHolder is empty!");
             if (mRecentTextView.getLineCount() >= 1) {
-                mRecentTextView.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 7.0f, MainActivity.this.getResources().getDisplayMetrics()), 1.0f);
+                mRecentTextView.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.0f, MainActivity.this.getResources().getDisplayMetrics()), 1.0f);
             }
         }
     }
 
     class RecycleAdapter extends RecyclerView.Adapter<ViewHolder> {
         private List<String> mData;
-        private GlobalUtils.HeightUtil mHeightUtil;
+        private GlobalUtils.HeightUtil<GridLayoutManager.LayoutParams> mHeightUtil;
         private int mRecycleViewHeight;
         private int mSpace;
 
@@ -308,7 +349,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
+        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 
             View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_grid, viewGroup, false);
             if (mData == null || mData.size() == 0 || (mData.size() == 1 && mData.get(0).equals(""))) {
@@ -317,35 +358,51 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             }
             ViewHolder viewHolder = new ViewHolder(view);
 
-//            view.setMinimumHeight(200);
-            mHeightUtil = new GlobalUtils.HeightUtil<AbsListView.LayoutParams>();
+            //resize height
+            mHeightUtil = new GlobalUtils.HeightUtil<>();
             int itemHeight = mHeightUtil.calcItemHeight(mRecycleViewHeight, mSpace, 3);
             mHeightUtil.resizeHeight(view, -1, itemHeight, new GridLayoutManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
             //listener
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mOnRecycleItemClickListener != null) {
-                        mOnRecycleItemClickListener.onItemClick(i);
-                    }
-                }
-            });
-            view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (mOnRecycleItemClickListener != null) {
-                        mOnRecycleItemClickListener.onItemLongClick(i);
-                    }
-                    return false;
-                }
-            });
+            Log.d("opticalix", "-=-= onCreateViewHolder");
+
             return viewHolder;
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int i) {
+        public void onBindViewHolder(final ViewHolder viewHolder, int i) {
+            Log.d("opticalix", "-=-= onBindViewHolder");
+            viewHolder.mRecentTextView.setTag(i);
+            viewHolder.mDeleteLayer.setTag(i);
             viewHolder.mRecentTextView.setText(mData.get(i));
+            viewHolder.mDeleteLayer.setVisibility(mAllowDelete ? View.VISIBLE : View.GONE);
+
+            viewHolder.mRecentTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mOnRecycleItemClickListener != null) {
+                        mOnRecycleItemClickListener.onItemClick(viewHolder.mRecentTextView);
+                    }
+                }
+            });
+            viewHolder.mDeleteLayer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mOnRecycleItemClickListener != null) {
+                        mOnRecycleItemClickListener.onItemClick(viewHolder.mDeleteLayer);
+                    }
+                }
+            });
+            viewHolder.mRecentTextView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (mOnRecycleItemClickListener != null) {
+                        mOnRecycleItemClickListener.onItemLongClick(viewHolder.mRecentTextView);
+                    }
+                    return false;
+                }
+            });
+
         }
 
         @Override
@@ -365,9 +422,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     interface OnRecycleItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(View v);
 
-        void onItemLongClick(int position);
+        void onItemLongClick(View v);
     }
 
     class DividerItemDecoration extends RecyclerView.ItemDecoration {
