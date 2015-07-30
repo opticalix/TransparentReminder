@@ -56,6 +56,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private RecycleAdapter mRecycleAdapter;
     private boolean mAllowDelete;
     private int mLastItemPos = -1;
+    private String mLastItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +133,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     @Override
     protected void onDestroy() {
+        mLastItem = null;
         super.onDestroy();
     }
 
@@ -151,32 +153,64 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_ok:
-                String trimContent = mEditText.getText().toString().trim();
+                final String trimContent = mEditText.getText().toString().trim();
                 if (TextUtils.isEmpty(trimContent)) {
                     int res[] = {R.layout.tip_empty_dialog, R.id.tv_title, R.id.tv_tip};
                     TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
                     dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "empty_tip");
-                    dialogFragment.setOnOkBtnClickListener(new TipDialogFragment.OnOkBtnClickListener() {
-                        @Override
-                        public void onOkClick() {
-                            Intent intent = new Intent(
-                                    ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
-                            intent.putExtra("content", "");
-                            MainActivity.this.sendBroadcast(intent);
-                            finish();
-                        }
-                    });
-                    return;
-                } else {
-                    //TODO 询问是否替换
-                    addToSp(trimContent);
-                }
-                Intent intent = new Intent(
-                        ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
-                intent.putExtra("content", trimContent);
-                this.sendBroadcast(intent);
+                    dialogFragment.setOnOkBtnClickListener(
+                            new TipDialogFragment.OnOkBtnClickListener() {
+                                @Override
+                                public void onOkClick() {
 
-                finish();
+                                    Intent intent = new Intent(
+                                            ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
+                                    intent.putExtra("content", "");
+                                    MainActivity.this.sendBroadcast(intent);
+                                    finish();
+                                }
+                            }
+                    );
+                } else {
+                    //FIXME 询问是否替换
+                    if (!TextUtils.isEmpty(mLastItem) && trimContent.contains(mLastItem) && !trimContent.equals(mLastItem)) {
+                        int res[] = {R.layout.tip_replace_dialog, R.id.tv_title, R.id.tv_tip};
+                        TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
+                        dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "replace_tip");
+                        dialogFragment.setOnOkBtnClickListener(new TipDialogFragment.OnOkBtnClickListener() {
+                            @Override
+                            public void onOkClick() {
+                                addToSp(trimContent);
+                                removeFromSp(mLastItem);
+                                Intent intent = new Intent(
+                                        ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
+                                intent.putExtra("content", trimContent);
+                                MainActivity.this.sendBroadcast(intent);
+                                finish();
+                            }
+                        });
+                        dialogFragment.setOnCancelBtnClickListener(new TipDialogFragment.OnCancelBtnClickListener() {
+                            @Override
+                            public void onCancelClick() {
+                                addToSp(trimContent);
+                                Intent intent = new Intent(
+                                        ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
+                                intent.putExtra("content", trimContent);
+                                MainActivity.this.sendBroadcast(intent);
+                                finish();
+                            }
+                        });
+                    } else {
+                        addToSp(trimContent);
+                        Intent intent = new Intent(
+                                ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
+                        intent.putExtra("content", trimContent);
+                        this.sendBroadcast(intent);
+                        finish();
+                    }
+
+                }
+
                 break;
             case R.id.btn_clear:
                 mEditText.setText("");
@@ -269,10 +303,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     @Override
     public void onBackPressed() {
         popSoftKeyboard(this, mEditText, false);
-        if(mAllowDelete){
+        if (mAllowDelete) {
             mAllowDelete = !mAllowDelete;
             MenuItem item = mToolBar.getMenu().getItem(0);
-            if(item.getItemId() != R.id.btn_menu_delete){
+            if (item.getItemId() != R.id.btn_menu_delete) {
                 throw new RuntimeException("get the wrong menu btn!");
             }
             item.setIcon(mAllowDelete ? R.drawable.icon_white_delete_checked : R.drawable.icon_white_delete);
@@ -294,17 +328,20 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             @Override
             public void onItemClick(View v) {
                 int position = (int) v.getTag();
-                if(v.getId() == R.id.tv_item){
+                if (v.getId() == R.id.tv_item) {
                     mLastItemPos = position;
+                    mLastItem = mSpContentList.get(position);
                     mEditText.setText(mSpContentList.get(position));
                     mEditText.setSelection(mEditText.getText().toString().length());
-                }else if(v.getId() == R.id.iv_delete_layer){
-                    if(mAllowDelete){
+                    popSoftKeyboard(mContext, mEditText, true);
+
+                } else if (v.getId() == R.id.iv_delete_layer) {
+                    if (mAllowDelete) {
                         removeFromSp(mSpContentList.get(position));
                         mSpContentList.remove(position);
                         mRecycleAdapter.notifyItemRemoved(position);
 //                        mRecycleAdapter.notifyDataSetChanged();
-                        mRecycleAdapter.notifyItemRangeChanged(0 ,max-1);
+                        mRecycleAdapter.notifyItemRangeChanged(0, max - 1);
                     }
                 }
             }
@@ -328,7 +365,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             super(itemView);
             mRecentTextView = (RecentTextView) itemView.findViewById(R.id.tv_item);
             mDeleteLayer = (ImageView) itemView.findViewById(R.id.iv_delete_layer);
-            if(mRecentTextView == null || mDeleteLayer == null)
+            if (mRecentTextView == null || mDeleteLayer == null)
                 throw new RuntimeException("viewHolder is empty!");
             if (mRecentTextView.getLineCount() >= 1) {
                 mRecentTextView.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.0f, MainActivity.this.getResources().getDisplayMetrics()), 1.0f);

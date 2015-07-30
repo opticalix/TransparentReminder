@@ -75,7 +75,8 @@ public class TipDialogFragment extends DialogFragment {
         }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                if (mOnCancelBtnClickListener != null)
+                    mOnCancelBtnClickListener.onCancelClick();
             }
         }).setCancelable(false);
         AlertDialog alertDialog = builder.create();
@@ -107,6 +108,10 @@ public class TipDialogFragment extends DialogFragment {
         public void onOkClick();
     }
 
+    interface OnCancelBtnClickListener {
+        public void onCancelClick();
+    }
+
     private OnOkBtnClickListener mOnOkBtnClickListener;
 
     public OnOkBtnClickListener getOnOkBtnClickListener() {
@@ -115,5 +120,14 @@ public class TipDialogFragment extends DialogFragment {
 
     public void setOnOkBtnClickListener(OnOkBtnClickListener onOkBtnClickListener) {
         mOnOkBtnClickListener = onOkBtnClickListener;
+    }
+    private OnCancelBtnClickListener mOnCancelBtnClickListener;
+
+    public OnCancelBtnClickListener getOnCancelBtnClickListener() {
+        return mOnCancelBtnClickListener;
+    }
+
+    public void setOnCancelBtnClickListener(OnCancelBtnClickListener onCancelBtnClickListener) {
+        mOnCancelBtnClickListener = onCancelBtnClickListener;
     }
 }

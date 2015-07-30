@@ -13,14 +13,13 @@ import com.opticalix.widget_reminder.R;
 
 public class ExampleAppWidgetProvider extends AppWidgetProvider {
 
-	public static final String TAG = "WidgetProvider";
+	public static final String TAG = "opticalix";
 	public static final String ACTION_START_ACTIVITY = "OPTICALIX.ACTION.START.ACTIVITY";
 	public static final String ACTION_UPDATE_WIDGET = "OPTICALIX.ACTION.UPDATE_WIDGET";
 	private RemoteViews views;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d(TAG, "onReceive");
 		super.onReceive(context, intent);
 		setListeners(context);
 		if (intent.getAction() == ACTION_UPDATE_WIDGET) {
@@ -30,12 +29,13 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
 					views = new RemoteViews(context.getPackageName(),
 							R.layout.example_appwidget);
 				}
+				Log.d(TAG, "onReceive UPDATE content: "+intent.getStringExtra("content"));
 				views.setTextViewText(R.id.tv_widget,
 						intent.getStringExtra("content"));
 				AppWidgetManager appWidgetManger = AppWidgetManager
 						.getInstance(context);
 				int[] appIds = appWidgetManger.getAppWidgetIds(new ComponentName(
-						context, ExampleAppWidgetProvider.class));//�õ�appIds
+						context, ExampleAppWidgetProvider.class));
 				appWidgetManger.updateAppWidget(appIds, views);
 			}
 		}
