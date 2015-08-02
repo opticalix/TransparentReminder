@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.opticalix.base.BaseActivity;
 import com.opticalix.utils.GlobalUtils;
+import com.opticalix.utils.L;
 import com.opticalix.widget_reminder.R;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
@@ -61,6 +62,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         initSystemBar();
         setContentView(R.layout.start_act);
         mContext = this;
