@@ -51,6 +51,7 @@ public class GlobalUtils {
     public static class HeightUtil<T extends ViewGroup.LayoutParams> {
         /**
          * 重新定制宽高 layoutParams是为了以防layoutParams为空
+         *
          * @param view
          * @param width
          * @param height
@@ -67,11 +68,19 @@ public class GlobalUtils {
             view.requestLayout();
         }
 
-        public int calcItemHeight(int total, int space, int rowCount){
-            int hei =  (total - space * (rowCount - 1)) / rowCount;
+        public int calcItemHeight(int total, int space, int rowCount) {
+            int hei = (total - space * (rowCount - 1)) / rowCount;
             Log.d("opticalix", "calcItemHeight height:" + hei);
             return hei;
         }
     }
 
+    public static void printMyEx(Context context, Throwable ex) {
+        StackTraceElement[] stackTrace = ex.getStackTrace();
+        for (StackTraceElement element : stackTrace) {
+            if (element.getClassName().contains(context.getPackageName().substring(0, context.getPackageName().lastIndexOf(".")))) {
+                L.e("Opticalix Exception: At " + element.getClassName() + "->" + element.getMethodName() + ", Line:" + element.getLineNumber() +". "+ ex.getMessage());
+            }
+        }
+    }
 }
