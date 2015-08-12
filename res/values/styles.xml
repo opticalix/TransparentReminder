@@ -16,7 +16,7 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <item name="colorPrimary">@drawable/selector_grid_item_bg</item>
+        <item name="colorPrimary">@color/material_main_green</item>
         <item name="colorPrimaryDark">@color/material_green_dark</item>
         <item name="colorAccent">@color/material_pink</item>
         <item name="android:listDivider">@drawable/list_divider</item>

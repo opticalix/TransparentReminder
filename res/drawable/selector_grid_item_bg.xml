@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--<item android:state_pressed="true" android:color="@color/material_green_dark"/>-->
+    <!--<item  android:color="@color/material_main_green"/>-->
+
     <item android:state_pressed="true">
-        <color android:color="@color/material_green_dark"></color>
+        <shape>
+            <solid android:color="@color/material_green_dark"/>
+        </shape>
     </item>
     <item>
-        <color android:color="@color/material_main_green"></color>
+        <shape>
+            <solid android:color="@color/material_main_green"/>
+        </shape>
     </item>
 </selector>

@@ -19,6 +19,7 @@
         android:textColor="@android:color/white"
         android:background="@drawable/selector_grid_item_bg"
         android:gravity="center"/>
+
     <ImageView
         android:id="@+id/iv_delete_layer"
         android:visibility="visible"

@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         mSpContentArr = spContents.split(GlobalUtils.DIVIDER);
         mOkBtn.setOnClickListener(this);
         mClearBtn.setOnClickListener(this);
-
+        Log.d("opticalix", "saved sp content: "+spContents);
         //ToolBar
         setSupportActionBar(mToolBar);
     }
