@@ -1,4 +1,4 @@
-package com.opticalix;
+package com.opticalix.component;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

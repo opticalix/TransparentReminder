@@ -1,4 +1,4 @@
-package com.opticalix;
+package com.opticalix.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import de.greenrobot.event.EventBus;
 
 /**
  * Created by Felix on 2015/6/15.

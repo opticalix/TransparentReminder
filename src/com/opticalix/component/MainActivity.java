@@ -1,5 +1,6 @@
-package com.opticalix;
+package com.opticalix.component;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -34,15 +35,15 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.opticalix.storage.MyStorage;
+import com.opticalix.storage.bean.Note;
+import com.opticalix.ui.RecentTextView;
 import com.opticalix.base.BaseActivity;
 import com.opticalix.utils.GlobalUtils;
-import com.opticalix.utils.L;
 import com.opticalix.widget_reminder.R;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
@@ -52,17 +53,16 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private Button mClearBtn;
     private Toolbar mToolBar;
     private final int max = 6;
-    private String[] mSpContentArr;
     private boolean mPostMsg;
     private int mRecycleViewHeight;
     private int mSpacing;
     private MainActivity mContext;
     private RecyclerView mRecycleView;
-    private List<String> mSpContentList;
     private RecycleAdapter mRecycleAdapter;
     private boolean mAllowDelete;
-    private int mLastItemPos = -1;
-    private String mLastItem;
+    private List<Note> mNoteList;
+
+    private Note mLastItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,17 +80,20 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         mToolBar.setPadding(mToolBar.getPaddingLeft(), mToolBar.getPaddingTop() + GlobalUtils.getStatusHeight(this), mToolBar.getPaddingRight(), mToolBar.getPaddingBottom());
         mToolBar.requestLayout();
 
-        String spContents = GlobalUtils.restoreFromSp(this);
-        mSpContentArr = spContents.split(GlobalUtils.DIVIDER);
+        //load note
+        mNoteList = MyStorage.getInstance(this).loadAllNotes();
+        if(mNoteList == null) mNoteList = new ArrayList<>();
+
+        //listeners
         mOkBtn.setOnClickListener(this);
         mClearBtn.setOnClickListener(this);
-        Log.d("opticalix", "saved sp content: "+spContents);
         //ToolBar
         setSupportActionBar(mToolBar);
     }
 
     private void initSystemBar() {
         //利用SystemBarTintManager 实现4.4+的translucent效果
+        //HuaWei top padding too big..
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
@@ -162,6 +165,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             case R.id.btn_ok:
                 final String trimContent = mEditText.getText().toString().trim();
                 if (TextUtils.isEmpty(trimContent)) {
+                    //put empty content on wall
                     int res[] = {R.layout.tip_empty_dialog, R.id.tv_title, R.id.tv_tip};
                     TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
                     dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "empty_tip");
@@ -179,43 +183,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                             }
                     );
                 } else {
-                    //FIXME 询问是否替换
-                    if (!TextUtils.isEmpty(mLastItem)) {// && trimContent.contains(mLastItem) && !trimContent.equals(mLastItem)
-                        int res[] = {R.layout.tip_replace_dialog, R.id.tv_title, R.id.tv_tip};
-                        TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
-                        dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "replace_tip");
-                        dialogFragment.setOnOkBtnClickListener(new TipDialogFragment.OnOkBtnClickListener() {
-                            @Override
-                            public void onOkClick() {
-                                addToSp(trimContent);
-                                if(!TextUtils.isEmpty(trimContent) && !TextUtils.isEmpty(mLastItem) && !trimContent.equals(mLastItem)){
-                                    removeFromSp(mLastItem);
-                                }
-                                Intent intent = new Intent(
-                                        ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
-                                intent.putExtra("content", trimContent);
-                                MainActivity.this.sendBroadcast(intent);
-                                finish();
-                            }
-                        });
-                        dialogFragment.setOnCancelBtnClickListener(new TipDialogFragment.OnCancelBtnClickListener() {
-                            @Override
-                            public void onCancelClick() {
-                                addToSp(trimContent);
-                                Intent intent = new Intent(
-                                        ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
-                                intent.putExtra("content", trimContent);
-                                MainActivity.this.sendBroadcast(intent);
-                                finish();
-                            }
-                        });
+                    if (mLastItem != null) {// && trimContent.contains(mLastItem) && !trimContent.equals(mLastItem)
+                        replaceClickItem(trimContent);
                     } else {
-                        addToSp(trimContent);
-                        Intent intent = new Intent(
-                                ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
-                        intent.putExtra("content", trimContent);
-                        this.sendBroadcast(intent);
-                        finish();
+                        addNewItem(trimContent);
                     }
 
                 }
@@ -227,6 +198,45 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         }
     }
 
+    private void addNewItem(String trimContent) {
+        addNote(trimContent);
+        Intent intent = new Intent(
+                ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
+        intent.putExtra("content", trimContent);
+        this.sendBroadcast(intent);
+        finish();
+    }
+
+    private void replaceClickItem(final String trimContent) {
+        //fixme replace..
+        int res[] = {R.layout.tip_replace_dialog, R.id.tv_title, R.id.tv_tip};
+        TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
+        dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "replace_tip");
+        dialogFragment.setOnOkBtnClickListener(new TipDialogFragment.OnOkBtnClickListener() {
+            @Override
+            public void onOkClick() {
+                addNote(trimContent);
+                if (!trimContent.equals(mLastItem.getContent())) {
+                    removeNote(mLastItem);
+                }else{
+                    mLastItem.setUpdate_date(new Date(System.currentTimeMillis()));
+                    MyStorage.getInstance(MainActivity.this).updateNote(mLastItem);
+                }
+                Intent intent = new Intent(
+                        ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
+                intent.putExtra("content", trimContent);
+                MainActivity.this.sendBroadcast(intent);
+                finish();
+            }
+        });
+        dialogFragment.setOnCancelBtnClickListener(new TipDialogFragment.OnCancelBtnClickListener() {
+            @Override
+            public void onCancelClick() {
+                addNewItem(trimContent);
+            }
+        });
+    }
+
     private void clearRecent() {
         int res[] = {R.layout.tip_clear_dialog, R.id.tv_title, R.id.tv_tip};
         final TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
@@ -234,16 +244,32 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         dialogFragment.setOnOkBtnClickListener(new TipDialogFragment.OnOkBtnClickListener() {
             @Override
             public void onOkClick() {
-                mSpContentArr = new String[]{""};
-                mRecycleAdapter = new RecycleAdapter(Arrays.asList(mSpContentArr), mRecycleViewHeight, mSpacing);
-                GlobalUtils.saveToSp(MainActivity.this, "");
-//                mRecycleAdapter.notifyItemMoved(0, max - 1);
-                mRecycleView.setAdapter(mRecycleAdapter);
+                clearNote();
             }
         });
     }
 
-    private void addToSp(String trimContent) {
+    private void clearNote() {
+        mNoteList.clear();
+        int size = mRecycleAdapter.mData.size();
+        mRecycleAdapter.mData.clear();
+        mRecycleAdapter.notifyItemRangeRemoved(0, size);
+
+        MyStorage.getInstance(this).removeAllNote();
+    }
+
+    private List<String> convertNotesToStrings(List<Note> notes){
+        ArrayList<String> strings = new ArrayList<>();
+        if(notes == null) return strings;
+        for (Note note : notes){
+            strings.add(note.getContent());
+        }
+        return strings;
+    }
+
+
+    @Deprecated
+    private void addNoteBySp(String trimContent){
         String spContents = GlobalUtils.restoreFromSp(this);
         String[] spContentArr = spContents.split(GlobalUtils.DIVIDER);
         List<String> spContentList = Arrays.asList(spContentArr);
@@ -268,9 +294,25 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 GlobalUtils.addToSp(this, trimContent);
             }
         }
+
     }
 
-    public void removeFromSp(String trimContent) {
+    private void addNoteByDB(String trimContent){
+        Note note = new Note();
+        note.setContent(trimContent);
+        Date date = new Date(System.currentTimeMillis());
+        note.setCreate_date(date);
+        note.setUpdate_date(date);
+        MyStorage.getInstance(this).insertNote(note);
+    }
+
+    private void addNote(String trimContent) {
+//        addNoteBySp(trimContent);
+        addNoteByDB(trimContent);
+    }
+
+    @Deprecated
+    private void removeNoteBySp(String trimContent){
         String spContents = GlobalUtils.restoreFromSp(this);
         String[] spContentArr = spContents.split(GlobalUtils.DIVIDER);
         List<String> spContentList = Arrays.asList(spContentArr);
@@ -280,6 +322,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             listFromSp.remove(trimContent);
             GlobalUtils.saveToSp(this, parseListToString(listFromSp));
         }
+    }
+    public void removeNote(Note note) {
+//        removeNoteBySp(trimContent);
+        mNoteList.remove(note);
+
+        MyStorage.getInstance(this).removeNote(note);
     }
 
     private String parseListToString(List<String> spList) {
@@ -313,7 +361,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public void onBackPressed() {
         popSoftKeyboard(this, mEditText, false);
         if (mAllowDelete) {
-            mAllowDelete = !mAllowDelete;
+            mAllowDelete = false;
             MenuItem item = mToolBar.getMenu().getItem(0);
             if (item.getItemId() != R.id.btn_menu_delete) {
                 throw new RuntimeException("get the wrong menu btn!");
@@ -326,30 +374,26 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     public void initRecycleView() {
-        mSpContentList = new ArrayList<>();
-        mSpContentList.addAll(Arrays.asList(mSpContentArr));
-
         mRecycleView.setHasFixedSize(true);
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecycleView.setLayoutManager(staggeredGridLayoutManager);
-        mRecycleAdapter = new RecycleAdapter(mSpContentList, mRecycleViewHeight, mSpacing);
+        mRecycleAdapter = new RecycleAdapter(convertNotesToStrings(mNoteList), mRecycleViewHeight, mSpacing);
         mRecycleAdapter.setOnRecycleItemClickListener(new OnRecycleItemClickListener() {
             @Override
             public void onItemClick(View v) {
                 int position = (int) v.getTag();
                 if (v.getId() == R.id.tv_item) {
-                    mLastItemPos = position;
-                    mLastItem = mSpContentList.get(position);
-                    mEditText.setText(mSpContentList.get(position));
+                    mLastItem = mNoteList.get(position);
+                    mEditText.setText(mLastItem.getContent());
                     mEditText.setSelection(mEditText.getText().toString().length());
                     popSoftKeyboard(mContext, mEditText, true);
 
                 } else if (v.getId() == R.id.iv_delete_layer) {
                     if (mAllowDelete) {
-                        removeFromSp(mSpContentList.get(position));
-                        mSpContentList.remove(position);
+                        removeNote(mNoteList.get(position));
+                        mRecycleAdapter.mData.remove(position);
+
                         mRecycleAdapter.notifyItemRemoved(position);
-//                        mRecycleAdapter.notifyDataSetChanged();
                         mRecycleAdapter.notifyItemRangeChanged(0, max - 1);
                     }
                 }
@@ -389,7 +433,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         private int mSpace;
 
         public RecycleAdapter(List<String> data, int recycleViewHeight, int space) {
-            mData = data;
+            if(data == null){
+                mData = new ArrayList<>();
+            }else{
+                mData = data;
+            }
             this.mRecycleViewHeight = recycleViewHeight;
             this.mSpace = space;
         }

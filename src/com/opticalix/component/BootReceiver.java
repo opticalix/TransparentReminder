@@ -1,4 +1,4 @@
-package com.opticalix;
+package com.opticalix.component;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +10,7 @@ import com.opticalix.utils.GlobalUtils;
 /**
  * Created by Felix on 15/7/29.
  */
+@Deprecated
 public class BootReceiver extends BroadcastReceiver {
 
     private String[] mSpContentArr;

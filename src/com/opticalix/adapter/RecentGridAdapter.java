@@ -1,4 +1,4 @@
-package com.opticalix;
+package com.opticalix.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 
+import com.opticalix.ui.RecentTextView;
 import com.opticalix.utils.GlobalUtils;
 import com.opticalix.widget_reminder.R;
 
