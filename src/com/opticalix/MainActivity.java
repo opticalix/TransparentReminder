@@ -7,6 +7,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -20,12 +22,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -143,7 +148,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus && !mPostMsg) {
-            mRecycleViewHeight = mRecycleView.getHeight();
+            mRecycleViewHeight = mRecycleView.getHeight() - getNavBarHeight(this);
             mSpacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.0f, MainActivity.this.getResources().getDisplayMetrics());
             mPostMsg = true;
             //init RecycleView
@@ -175,7 +180,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     );
                 } else {
                     //FIXME 询问是否替换
-                    if (!TextUtils.isEmpty(mLastItem) && trimContent.contains(mLastItem) && !trimContent.equals(mLastItem)) {
+                    if (!TextUtils.isEmpty(mLastItem)) {// && trimContent.contains(mLastItem) && !trimContent.equals(mLastItem)
                         int res[] = {R.layout.tip_replace_dialog, R.id.tv_title, R.id.tv_tip};
                         TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
                         dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "replace_tip");
@@ -183,7 +188,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                             @Override
                             public void onOkClick() {
                                 addToSp(trimContent);
-                                removeFromSp(mLastItem);
+                                if(!TextUtils.isEmpty(trimContent) && !TextUtils.isEmpty(mLastItem) && !trimContent.equals(mLastItem)){
+                                    removeFromSp(mLastItem);
+                                }
                                 Intent intent = new Intent(
                                         ExampleAppWidgetProvider.ACTION_UPDATE_WIDGET);
                                 intent.putExtra("content", trimContent);
@@ -537,5 +544,43 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             outRect.set(0, 0, mDivider.getIntrinsicWidth(),
                     mDivider.getIntrinsicHeight());
         }
+    }
+
+    /**
+     * is there exists a nav bar
+     * @param c
+     * @return
+     */
+    public int getNavBarHeight(Context c) {
+        int result = 0;
+        boolean hasMenuKey = ViewConfiguration.get(c).hasPermanentMenuKey();
+        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+
+        if(!hasMenuKey && !hasBackKey) {
+            //The device has a navigation bar
+            Resources resources = c.getResources();
+
+            int orientation = getResources().getConfiguration().orientation;
+            int resourceId;
+            if (isTablet(c)){
+                resourceId = resources.getIdentifier(orientation == Configuration.ORIENTATION_PORTRAIT ? "navigation_bar_height" : "navigation_bar_height_landscape", "dimen", "android");
+            }  else {
+                resourceId = resources.getIdentifier(orientation == Configuration.ORIENTATION_PORTRAIT ? "navigation_bar_height" : "navigation_bar_width", "dimen", "android");
+            }
+
+            if (resourceId > 0) {
+                result = getResources().getDimensionPixelSize(resourceId);
+            }
+        }
+
+        Log.d("MainAct", "hasMenuKey="+hasMenuKey+", hasBackKey="+hasBackKey+" navHeight="+result);
+        return result;
+    }
+
+
+    private boolean isTablet(Context c) {
+        return (c.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 }

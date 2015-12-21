@@ -22,7 +22,7 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
 	public void onReceive(Context context, Intent intent) {
 		super.onReceive(context, intent);
 		setListeners(context);
-		if (intent.getAction() == ACTION_UPDATE_WIDGET) {
+		if (intent.getAction().equals(ACTION_UPDATE_WIDGET)) {
 			Log.d(TAG, "onReceive ACTION_UPDATE_WIDGET");
 			if (intent.getStringExtra("content") != null) {
 				if (views == null) {
