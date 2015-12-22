@@ -339,7 +339,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         MyStorage.getInstance(this).insertNote(note);
 
         //delete last one if >6
-        if(mNoteList != null && mNoteList.size() >= 6){
+        if(mNoteList != null && mNoteList.size() >= max){
             MyStorage.getInstance(this).removeNote(mNoteList.get(mNoteList.size()-1));
         }
     }
