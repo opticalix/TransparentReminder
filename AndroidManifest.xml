@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.opticalix.widget_reminder"
-          android:versionCode="110"
-          android:versionName="1.1">
+          android:versionCode="120"
+          android:versionName="1.2">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -20,6 +20,7 @@
         <activity
             android:name="com.opticalix.component.MainActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -47,6 +48,9 @@
                 <!--<action android:name="android.intent.action.BOOT_COMPLETED"/>-->
             <!--</intent-filter>-->
         <!--</receiver>-->
+
+        <activity android:name="com.opticalix.component.AboutActivity"
+            />
     </application>
 
 </manifest>

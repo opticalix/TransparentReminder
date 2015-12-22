@@ -11,7 +11,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="提示"
+        android:text="@string/tip"
         android:textStyle="bold"
         android:textColor="@color/material_green_dark"
         android:textSize="20sp"/>
@@ -20,10 +20,10 @@
         android:id="@+id/tv_tip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="25dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="15dp"
         android:gravity="center"
-        android:text="确定要保存空内容到桌面?"
+        android:text="@string/ensure_to_save_empty"
         android:layout_below="@id/tv_title"
         android:textSize="16sp"/>
 

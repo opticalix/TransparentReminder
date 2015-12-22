@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+       android:drawable="@drawable/icon_white_about"
+       android:scaleGravity="center"
+       android:scaleHeight="64%"
+       android:scaleWidth="64%"
+    >
+    <!--<bitmap android:src="@drawable/icon_white_about"/>-->
+</scale>

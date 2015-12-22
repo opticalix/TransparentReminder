@@ -19,7 +19,7 @@ import com.opticalix.widget_reminder.R;
 /**
  * Created by Felix on 2015/6/12.
  */
-public class TipDialogFragment extends DialogFragment {
+public class AcknowledgeDialogFragment extends DialogFragment {
     private TextView mTitleTv;
     private TextView mTipTv;
     private Runnable mRunnable;
@@ -32,8 +32,8 @@ public class TipDialogFragment extends DialogFragment {
      * @param res 1.layout 2.title id 3.tip id
      * @return
      */
-    public static TipDialogFragment newInstance(int[] res) {
-        TipDialogFragment TipDialogFragment = new TipDialogFragment();
+    public static AcknowledgeDialogFragment newInstance(int[] res) {
+        AcknowledgeDialogFragment TipDialogFragment = new AcknowledgeDialogFragment();
         Bundle args = new Bundle();
         args.putIntArray("res", res);
         TipDialogFragment.setArguments(args);
@@ -66,17 +66,11 @@ public class TipDialogFragment extends DialogFragment {
         mTitleTv = (TextView) view.findViewById(mTitleId);
         mTipTv = (TextView) view.findViewById(mTipId);
 
-        builder.setView(view).setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+        builder.setView(view).setPositiveButton(getResources().getString(R.string.i_know), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (mOnOkBtnClickListener != null)
                     mOnOkBtnClickListener.onOkClick();
-            }
-        }).setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (mOnCancelBtnClickListener != null)
-                    mOnCancelBtnClickListener.onCancelClick();
             }
         }).setCancelable(false);
         AlertDialog alertDialog = builder.create();

@@ -7,4 +7,9 @@
 
     <drawable name="material_main_green">#009688</drawable>
     <drawable name="material_green_dark">#00796B</drawable>
+
+
+    <color name="horizontal_progressbar_bg_color">#ededed</color>
+    <color name="horizontal_progressbar_progress_start_color">#0bb6e5</color>
+    <color name="horizontal_progressbar_progress_end_color">#0b86e5</color>
 </resources>

@@ -1,0 +1,22 @@
+<resources xmlns:xliff="http://schemas.android.com/tools">
+
+    <string name="app_name">透明便利貼</string>
+    <string name="clear_edit_text">清 除</string>
+    <string name="save_to_wall">保 存</string>
+    <string name="write_sth">隨手寫寫…\n只保存最近六條記錄~</string>
+
+    <string name="welcome">歡迎使用</string>
+    <string name="first_in_tips">首次使用，請添加本App的小控件到桌面~</string>
+    <string name="tip">提示</string>
+    <string name="ensure_to_replace">確定要替換之前的內容?</string>
+    <string name="ensure_to_save_empty">確定要保存空內容到桌面?</string>
+    <string name="ensure_to_clear_all">確定要清空最近記錄嗎?</string>
+
+    <string name="ok">確定</string>
+    <string name="cancel">取消</string>
+    <string name="i_know">我知道啦</string>
+
+    <string name="about_author">關於作者</string>
+    <string name="delete_item">刪除條目</string>
+    <string name="clear_all">清空歷史</string>
+</resources>

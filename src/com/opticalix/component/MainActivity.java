@@ -63,11 +63,13 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private List<Note> mNoteList;
 
     private Note mLastItem;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        checkFirstIn();
         initSystemBar();
         setContentView(R.layout.start_act);
         mContext = this;
@@ -89,6 +91,27 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         mClearBtn.setOnClickListener(this);
         //ToolBar
         setSupportActionBar(mToolBar);
+    }
+
+    private void checkFirstIn() {
+        boolean firstInFromSp = GlobalUtils.getFirstInFromSp(this);
+        if(firstInFromSp){
+            int res[] = {R.layout.tip_first_in_dialog, R.id.tv_title, R.id.tv_tip};
+            AcknowledgeDialogFragment dialogFragment = AcknowledgeDialogFragment.newInstance(res);
+            dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "first_in_tip");
+            dialogFragment.setOnOkBtnClickListener(
+                    new AcknowledgeDialogFragment.OnOkBtnClickListener() {
+                        @Override
+                        public void onOkClick() {
+                            //can not add widget to home screen programmatically
+//                            Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
+//                            pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 1);
+//                            startActivityForResult(pickIntent, 1);
+                            GlobalUtils.setFirstInToSp(MainActivity.this, false);
+                        }
+                    }
+            );
+        }
     }
 
     private void initSystemBar() {
@@ -116,6 +139,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         //create menu from main_menu.xml
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
+        this.mMenu = menu;
         return true;
     }
 
@@ -123,6 +148,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+            case R.id.btn_menu_about:
+                Intent intent = new Intent();
+                intent.setClass(this, AboutActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.btn_menu_clear:
                 clearRecent();
                 return true;
@@ -132,13 +162,17 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 //                int[] checkState = new int[] {android.R.attr.state_checked};
 //                int[] idleState = new int[] {};
 //                item.getIcon().setState(!item.isChecked() ? idleState : checkState);
-                mAllowDelete = !mAllowDelete;
-                item.setIcon(mAllowDelete ? R.drawable.icon_white_delete_checked : R.drawable.icon_white_delete);
-                mRecycleAdapter.notifyDataSetChanged();
+                switchMode(item);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void switchMode(MenuItem item) {
+        mAllowDelete = !mAllowDelete;
+        item.setIcon(mAllowDelete ? R.drawable.icon_white_delete_checked : R.drawable.icon_white_delete);
+        mRecycleAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -208,17 +242,16 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     private void replaceClickItem(final String trimContent) {
-        //fixme replace..
         int res[] = {R.layout.tip_replace_dialog, R.id.tv_title, R.id.tv_tip};
         TipDialogFragment dialogFragment = TipDialogFragment.newInstance(res);
         dialogFragment.show(MainActivity.this.getSupportFragmentManager(), "replace_tip");
         dialogFragment.setOnOkBtnClickListener(new TipDialogFragment.OnOkBtnClickListener() {
             @Override
             public void onOkClick() {
-                addNote(trimContent);
                 if (!trimContent.equals(mLastItem.getContent())) {
+                    addNote(trimContent);
                     removeNote(mLastItem);
-                }else{
+                } else {
                     mLastItem.setUpdate_date(new Date(System.currentTimeMillis()));
                     MyStorage.getInstance(MainActivity.this).updateNote(mLastItem);
                 }
@@ -270,7 +303,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     @Deprecated
     private void addNoteBySp(String trimContent){
-        String spContents = GlobalUtils.restoreFromSp(this);
+        String spContents = GlobalUtils.restoreNoteContentFromSp(this);
         String[] spContentArr = spContents.split(GlobalUtils.DIVIDER);
         List<String> spContentList = Arrays.asList(spContentArr);
         if (spContentList.contains(trimContent)) {
@@ -279,7 +312,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             listFromSp.addAll(spContentList);
             listFromSp.remove(trimContent);
             listFromSp.addFirst(trimContent);
-            GlobalUtils.saveToSp(this, parseListToString(listFromSp));
+            GlobalUtils.saveNoteContentToSp(this, parseListToString(listFromSp));
         } else {
             //没有重复则保存
             if (spContentArr.length >= max) {
@@ -288,10 +321,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 listFromSp.addAll(spContentList);
                 listFromSp.removeLast();
                 listFromSp.addFirst(trimContent);
-                GlobalUtils.saveToSp(this, parseListToString(listFromSp));
+                GlobalUtils.saveNoteContentToSp(this, parseListToString(listFromSp));
             } else {
                 //没有到达最大个数
-                GlobalUtils.addToSp(this, trimContent);
+                GlobalUtils.addNoteContentToSp(this, trimContent);
             }
         }
 
@@ -304,6 +337,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         note.setCreate_date(date);
         note.setUpdate_date(date);
         MyStorage.getInstance(this).insertNote(note);
+
+        //delete last one if >6
+        if(mNoteList != null && mNoteList.size() >= 6){
+            MyStorage.getInstance(this).removeNote(mNoteList.get(mNoteList.size()-1));
+        }
     }
 
     private void addNote(String trimContent) {
@@ -313,14 +351,14 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     @Deprecated
     private void removeNoteBySp(String trimContent){
-        String spContents = GlobalUtils.restoreFromSp(this);
+        String spContents = GlobalUtils.restoreNoteContentFromSp(this);
         String[] spContentArr = spContents.split(GlobalUtils.DIVIDER);
         List<String> spContentList = Arrays.asList(spContentArr);
         if (spContentList.contains(trimContent)) {
             LinkedList<String> listFromSp = new LinkedList<>();
             listFromSp.addAll(spContentList);
             listFromSp.remove(trimContent);
-            GlobalUtils.saveToSp(this, parseListToString(listFromSp));
+            GlobalUtils.saveNoteContentToSp(this, parseListToString(listFromSp));
         }
     }
     public void removeNote(Note note) {
@@ -401,7 +439,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
             @Override
             public void onItemLongClick(View v) {
-
+                //change to delete mode
+                MenuItem item = mMenu.findItem(R.id.btn_menu_delete);
+                switchMode(item);
             }
         });
         mRecycleView.setAdapter(mRecycleAdapter);

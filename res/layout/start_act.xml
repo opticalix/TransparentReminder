@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -13,10 +14,9 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/id_toolbar"
-        android:paddingLeft="0dp"
         android:background="?attr/colorPrimary"
         android:minHeight="50dp"
-        app:navigationIcon="@drawable/ic_launcher"
+        app:navigationIcon="@null"
         app:title="@string/app_name"
         app:titleMarginStart="10dp"
         app:titleTextAppearance="@style/TitleTextStyle"
@@ -45,20 +45,20 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.21"
-                android:hint="随手写写…"
+                android:hint="@string/write_sth"
+                android:lineSpacingExtra="12dp"
                 android:padding="5dp"
                 android:gravity="start"
                 android:background="@drawable/selector_bg_et"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"/>
+                />
 
             <LinearLayout
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_below="@id/llyt"
                 android:orientation="vertical"
-                android:id="@+id/linearLayout">
+                android:id="@+id/linearLayout"
+                tools:ignore="RtlHardcoded">
 
                 <Button
                     android:id="@+id/btn_clear"
@@ -66,7 +66,7 @@
                     android:layout_weight="1"
                     android:layout_height="0dp"
                     style="@style/MyButton"
-                    android:text="清 空"/>
+                    android:text="@string/clear_edit_text"/>
 
                 <Button
                     android:id="@+id/btn_ok"
@@ -74,7 +74,7 @@
                     android:layout_weight="1"
                     android:layout_height="0dp"
                     style="@style/MyButton"
-                    android:text="保 存"/>
+                    android:text="@string/save_to_wall"/>
             </LinearLayout>
 
         </LinearLayout>

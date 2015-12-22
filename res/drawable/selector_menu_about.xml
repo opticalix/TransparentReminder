@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/icon_grey_about" android:state_pressed="true">
+    </item>
+    <item android:drawable="@drawable/icon_white_about">
+        <!--<scale android:drawable="@drawable/icon_white_about" android:scaleGravity="center" android:scaleHeight="80%" android:scaleWidth="80%">-->
+        <!--</scale>-->
+    </item>
+</selector>

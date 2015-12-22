@@ -18,7 +18,7 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("opticalix", "BootReceiver onReceive");
-        String spContents = GlobalUtils.restoreFromSp(context);
+        String spContents = GlobalUtils.restoreNoteContentFromSp(context);
         mSpContentArr = spContents.split(GlobalUtils.DIVIDER);
         Log.d("opticalix", "BootReceiver spArr:"+mSpContentArr);
         if(mSpContentArr.length > 0){

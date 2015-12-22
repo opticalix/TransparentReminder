@@ -1,5 +1,23 @@
 <resources xmlns:xliff="http://schemas.android.com/tools">
 
-    <string name="app_name">记事助手</string>
+    <string name="app_name">Transparent Note</string>
+    <string name="clear_edit_text">Clear</string>
+    <string name="save_to_wall">Save</string>
+    <string name="write_sth">Write sth here…\nOnly keep the recent 6 notes~</string>
+
+    <string name="welcome">Welcome</string>
+    <string name="first_in_tips">You need to add the widget of our app to home screen first~</string>
+    <string name="tip">Tip</string>
+    <string name="ensure_to_replace">Are u sure to replace?</string>
+    <string name="ensure_to_save_empty">Are u sure to show empty on widget?</string>
+    <string name="ensure_to_clear_all">Are u sure to clear all notes?</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="i_know">I know</string>
+
+    <string name="about_author">About author</string>
+    <string name="delete_item">Delete item</string>
+    <string name="clear_all">Clear all</string>
 
 </resources>

@@ -12,19 +12,30 @@ public class GlobalUtils {
     public static final String KEY = "key";
     public static final String DIVIDER = "%%";
 
-    public static void saveToSp(Context cxt, String value) {
+    public static final String FIRST_IN = "FIRST_IN";
+    public static void saveNoteContentToSp(Context cxt, String value) {
         SharedPreferences sp = cxt.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
         sp.edit().putString(KEY, value).apply();
     }
 
-    public static void addToSp(Context cxt, String value) {
+    public static void addNoteContentToSp(Context cxt, String value) {
         SharedPreferences sp = cxt.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
         sp.edit().putString(KEY, value + DIVIDER + sp.getString(KEY, "")).apply();
     }
 
-    public static String restoreFromSp(Context cxt) {
+    public static String restoreNoteContentFromSp(Context cxt) {
         SharedPreferences sp = cxt.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
         return sp.getString(KEY, "");
+    }
+
+    public static boolean getFirstInFromSp(Context context){
+        SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        return sp.getBoolean(FIRST_IN, true);
+    }
+
+    public static void setFirstInToSp(Context context, boolean b){
+        SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        sp.edit().putBoolean(FIRST_IN, b).apply();
     }
 
     /**
