@@ -45,7 +45,6 @@ public class GlobalUtils {
      * @return
      */
     public static int getStatusHeight(Context context) {
-
         int statusHeight = -1;
         try {
             Class<?> clazz = Class.forName("com.android.internal.R$dimen");
@@ -60,6 +59,7 @@ public class GlobalUtils {
     }
 
     public static class HeightUtil<T extends ViewGroup.LayoutParams> {
+        static boolean enable = false;
         /**
          * 重新定制宽高 layoutParams是为了以防layoutParams为空
          *
@@ -69,6 +69,8 @@ public class GlobalUtils {
          * @param layoutParams
          */
         public void resizeHeight(View view, int width, int height, T layoutParams) {
+            if(!enable)
+                return;
             T temp = (T) view.getLayoutParams();
             if (temp == null) {
                 temp = layoutParams;

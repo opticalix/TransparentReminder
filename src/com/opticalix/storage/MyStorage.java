@@ -53,7 +53,6 @@ public class MyStorage {
 
     public List<Note> loadAllNotes(){
         return getDao().queryBuilder().orderDesc(NoteDao.Properties.Update_date).list();
-//        return getDao().loadAll();
     }
 
     public void removeNote(Note note){

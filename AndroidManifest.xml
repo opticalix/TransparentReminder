@@ -4,8 +4,8 @@
           android:versionName="1.2.0">
 
     <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="23"/>
+        android:minSdkVersion="15"
+        android:targetSdkVersion="24"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -21,8 +21,7 @@
             android:name="com.opticalix.component.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation"
-            android:windowSoftInputMode="stateHidden">
+            android:configChanges="keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -50,6 +49,8 @@
         <!--</receiver>-->
 
         <activity android:name="com.opticalix.component.AboutActivity"
+            />
+        <activity android:name="com.opticalix.component.ColorPicActivity"
             />
     </application>
 

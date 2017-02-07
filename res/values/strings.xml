@@ -2,8 +2,8 @@
 
     <string name="app_name">Transparent Note</string>
     <string name="clear_edit_text">Clear</string>
-    <string name="save_to_wall">Save</string>
-    <string name="write_sth">Write sth here…\nOnly keep the recent 6 notes~</string>
+    <string name="save_to_wall">Save to desk</string>
+    <string name="write_sth">Write sth here…</string>
 
     <string name="welcome">Welcome</string>
     <string name="first_in_tips">You need to add the widget of our app to home screen first~</string>
@@ -19,5 +19,9 @@
     <string name="about_author">About author</string>
     <string name="delete_item">Delete item</string>
     <string name="clear_all">Clear all</string>
+    <string name="ensure_to_remove">Are you sure to remove it?</string>
+    <string name="save_note">Save</string>
+    <string name="change_text_color">Text Color</string>
+    <string name="pick_text_color">请选择展示在桌面的字体颜色</string>
 
 </resources>

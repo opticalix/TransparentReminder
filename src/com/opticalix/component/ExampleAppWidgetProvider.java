@@ -22,26 +22,33 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_UPDATE_WIDGET = "OPTICALIX.ACTION.UPDATE_WIDGET";
     private RemoteViews views;
 
+    //TODO 有时会出现onReceive正常 但是remoteView不改变
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         setListeners(context);
         if (intent.getAction().equals(ACTION_UPDATE_WIDGET)) {
             Log.d(TAG, "onReceive ACTION_UPDATE_WIDGET");
-            if (intent.getStringExtra("content") != null) {
-                if (views == null) {
-                    views = new RemoteViews(context.getPackageName(),
-                            R.layout.example_appwidget);
-                }
-                Log.d(TAG, "onReceive UPDATE content: " + intent.getStringExtra("content"));
-                views.setTextViewText(R.id.tv_widget,
-                        intent.getStringExtra("content"));
-                AppWidgetManager appWidgetManger = AppWidgetManager
-                        .getInstance(context);
-                int[] appIds = appWidgetManger.getAppWidgetIds(new ComponentName(
-                        context, ExampleAppWidgetProvider.class));
-                appWidgetManger.updateAppWidget(appIds, views);
+            String content = intent.getStringExtra("content");
+            String textColor = intent.getStringExtra("text_color");
+            if (views == null) {
+                views = new RemoteViews(context.getPackageName(),
+                        R.layout.example_appwidget);
             }
+            if (content != null && !content.isEmpty()) {
+                Log.d(TAG, "onReceive UPDATE content: " + content);
+                views.setTextViewText(R.id.tv_widget, content);
+            }
+            if(textColor != null && !textColor.isEmpty()){
+                Log.d(TAG, "onReceive UPDATE textColor: " + textColor);
+                views.setTextColor(R.id.tv_widget,  Integer.valueOf(textColor));
+            }
+
+            //没有change的项是不会变的
+            AppWidgetManager appWidgetManger = AppWidgetManager
+                    .getInstance(context);
+            int[] appIds = appWidgetManger.getAppWidgetIds(new ComponentName(context, ExampleAppWidgetProvider.class));
+            appWidgetManger.updateAppWidget(appIds, views);
         } else if (intent.getAction().equals(ACTION_START_ACTIVITY)) {
             Log.d(TAG, "onReceive ACTION_START_ACTIVITY");
             Intent startAct = new Intent(context, MainActivity.class);
@@ -52,7 +59,7 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             Log.d(TAG, "onReceive BOOT_COMPLETED");
 
             List<Note> notes = MyStorage.getInstance(context).loadAllNotes();
-            if(notes!=null && notes.size()>0){
+            if (notes != null && notes.size() > 0) {
                 //todo check if the last one
                 sendUpdateBroadcast(context, notes.get(0));
             }
@@ -65,6 +72,22 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
         i.putExtra("content", note.getContent());
         Log.d("opticalix", "BOOT_COMPLETED sendBroadcast with content" + note.getContent());
         context.sendBroadcast(i);
+    }
+
+    public void onUpdate(Context context, AppWidgetManager appWidgetManager,
+                         int[] appWidgetIds) {
+        Log.d(TAG, "onUpdate");
+        final int N = appWidgetIds.length;
+
+        for (int i = 0; i < N; i++) {
+            int appWidgetId = appWidgetIds[i];
+            Log.d(TAG, "onUpdate: " + appWidgetId);
+            setListeners(context);
+
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+
+        }
+
     }
 
     @Override
@@ -83,22 +106,6 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     public void onDisabled(Context context) {
         Log.d(TAG, "onDisabled");
         super.onDisabled(context);
-    }
-
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager,
-                         int[] appWidgetIds) {
-        Log.d(TAG, "onUpdate");
-        final int N = appWidgetIds.length;
-
-        for (int i = 0; i < N; i++) {
-            int appWidgetId = appWidgetIds[i];
-            Log.d(TAG, "onUpdate: " + appWidgetId);
-            setListeners(context);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
-        }
-
     }
 
     private void setListeners(Context context) {

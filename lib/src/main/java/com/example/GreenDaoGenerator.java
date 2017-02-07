@@ -25,6 +25,7 @@ public class GreenDaoGenerator {
         entity.addStringProperty("content");
         entity.addDateProperty("create_date");
         entity.addDateProperty("update_date");
+        entity.addBooleanProperty("lock");
 
 //        Entity tip = schema.addEntity("TipDetail");
 //        tip.addIdProperty().autoincrement();
