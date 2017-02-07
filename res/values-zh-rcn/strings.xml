@@ -2,8 +2,8 @@
 
     <string name="app_name">透明桌面签</string>
     <string name="clear_edit_text">清 除</string>
-    <string name="save_to_wall">保 存</string>
-    <string name="write_sth">随手写写…\n只保存最近六条记录~</string>
+    <string name="save_to_wall">保存并固定到桌面</string>
+    <string name="write_sth"></string>
 
     <string name="welcome">欢迎使用</string>
     <string name="first_in_tips">首次使用，请添加本App的小控件到桌面~</string>
@@ -11,6 +11,7 @@
     <string name="ensure_to_replace">确定要替换之前的内容?</string>
     <string name="ensure_to_save_empty">确定要保存空内容到桌面?</string>
     <string name="ensure_to_clear_all">确定要清空所有笔记吗?</string>
+    <string name="ensure_to_remove">确定删除?</string>
 
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
@@ -19,4 +20,7 @@
     <string name="about_author">关于作者</string>
     <string name="delete_item">删除条目</string>
     <string name="clear_all">清空历史</string>
+    <string name="save_note">保 存</string>
+    <string name="change_text_color">字体颜色</string>
+    <string name="pick_text_color">请选择展示在桌面的字体颜色</string>
 </resources>

@@ -4,23 +4,32 @@
     >
     <item
         android:checkable="true"
+        android:id="@+id/btn_menu_delete"
+        android:icon="@drawable/selector_menu_delete"
+        app:showAsAction="ifRoom"
+        android:title="@string/delete_item">
+    </item>
+    <item
+        android:checkable="false"
         android:id="@+id/btn_menu_about"
         android:icon="@drawable/selector_menu_about"
         app:showAsAction="never"
         android:title="@string/about_author">
     </item>
     <item
-        android:checkable="true"
-        android:id="@+id/btn_menu_delete"
-        android:icon="@drawable/selector_menu_delete"
-        app:showAsAction="always"
-        android:title="@string/delete_item">
+        android:checkable="false"
+        android:id="@+id/btn_change_text_color"
+        android:icon="@drawable/selector_menu_text_color"
+        android:visible="true"
+        app:showAsAction="ifRoom"
+        android:title="@string/change_text_color">
     </item>
     <item
-        android:checkable="true"
+        android:checkable="false"
         android:id="@+id/btn_menu_clear"
         android:icon="@drawable/selector_menu_clear"
-        app:showAsAction="always"
+        android:visible="false"
+        app:showAsAction="never"
         android:title="@string/clear_all">
     </item>
 </menu>
