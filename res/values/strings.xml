@@ -22,6 +22,6 @@
     <string name="ensure_to_remove">Are you sure to remove it?</string>
     <string name="save_note">Save</string>
     <string name="change_text_color">Text Color</string>
-    <string name="pick_text_color">请选择展示在桌面的字体颜色</string>
+    <string name="pick_text_color">Please select text color</string>
 
 </resources>
