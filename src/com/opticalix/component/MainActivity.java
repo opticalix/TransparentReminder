@@ -59,8 +59,12 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 public class MainActivity extends BaseActivity implements OnClickListener {
     public static final int REQUEST_CODE = 0x01;
+    public static final int RESULT_TXT_COLOR_CODE = 0x02;
+    public static final int RESULT_TXT_SIZE_CODE = 0x03;
     public static final String TEXT_COLOR = "text_color";
     public static final String CONTENT = "content";
+    public static final String TEXT_SIZE = "text_size";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private EditText mEditText;
     private Button mOkBtn;
     private Button mClearBtn;
@@ -181,6 +185,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 //                int[] idleState = new int[] {};
 //                item.getIcon().setState(!item.isChecked() ? idleState : checkState);
                 switchMode(item);
+                return true;
+            case R.id.btn_menu_text_size:
+                startActivityForResult(TextSizePicActivity.newIntent(this), REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -764,7 +771,13 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_CODE){
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            updateWidget(TEXT_COLOR, String.valueOf(prefs.getInt(ColorPicActivity.COLOR, 0xFFFFFFFF)), false);
+            if (resultCode == RESULT_TXT_COLOR_CODE) {
+                updateWidget(TEXT_COLOR, String.valueOf(prefs.getInt(ColorPicActivity.COLOR, 0xFFFFFFFF)), false);
+            } else if (resultCode == RESULT_TXT_SIZE_CODE){
+                updateWidget(TEXT_SIZE, String.valueOf(prefs.getInt(TextSizePicActivity.TEXT_SIZE, TextSizePicActivity.DEFAULT_TEXT_SIZE)), false);
+            } else {
+                Log.i(TAG, "onActivityResult canceled");
+            }
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);

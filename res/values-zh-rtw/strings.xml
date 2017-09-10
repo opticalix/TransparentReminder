@@ -24,4 +24,7 @@
     <string name="save_note">保 存</string>
     <string name="change_text_color">字体颜色</string>
     <string name="pick_text_color">请选择展示在桌面的字体颜色</string>
+    <string name="change_text_size">字体大小</string>
+    <string name="pick_text_size">请选择一个合适的字体大小</string>
+    <string name="sample_text">示例文字.</string>
 </resources>

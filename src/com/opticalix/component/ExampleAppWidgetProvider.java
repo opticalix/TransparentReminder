@@ -6,7 +6,9 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import com.opticalix.storage.MyStorage;
@@ -29,8 +31,9 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
         setListeners(context);
         if (intent.getAction().equals(ACTION_UPDATE_WIDGET)) {
             Log.d(TAG, "onReceive ACTION_UPDATE_WIDGET");
-            String content = intent.getStringExtra("content");
-            String textColor = intent.getStringExtra("text_color");
+            String content = intent.getStringExtra(MainActivity.CONTENT);
+            String textColor = intent.getStringExtra(MainActivity.TEXT_COLOR);
+            String textSize = intent.getStringExtra(MainActivity.TEXT_SIZE);
             if (views == null) {
                 views = new RemoteViews(context.getPackageName(),
                         R.layout.example_appwidget);
@@ -42,6 +45,14 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             if(textColor != null && !textColor.isEmpty()){
                 Log.d(TAG, "onReceive UPDATE textColor: " + textColor);
                 views.setTextColor(R.id.tv_widget,  Integer.valueOf(textColor));
+            }
+            if(textSize != null && !textSize.isEmpty()){
+                Log.d(TAG, "onReceive UPDATE textSize: " + textSize);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    views.setTextViewTextSize(R.id.tv_widget, TypedValue.COMPLEX_UNIT_SP, Integer.valueOf(textSize));
+                } else {
+                    Log.w(TAG, "onReceive UPDATE warn, api < 16");
+                }
             }
 
             //没有change的项是不会变的

@@ -84,9 +84,11 @@ public class ColorPicActivity extends BaseActivity implements ColorPickerView.On
                 edit.putInt(COLOR, mColorPickerView.getColor());
                 edit.apply();
 
+                setResult(MainActivity.RESULT_TXT_COLOR_CODE);
                 finish();
                 break;
             case R.id.cancelButton:
+                setResult(MainActivity.RESULT_CANCELED);
                 finish();
                 break;
         }

@@ -23,5 +23,8 @@
     <string name="save_note">Save</string>
     <string name="change_text_color">Text Color</string>
     <string name="pick_text_color">Please select text color</string>
+    <string name="pick_text_size">Please select a appropriate size of texts</string>
+    <string name="change_text_size">Change text size</string>
+    <string name="sample_text">Sample text.</string>
 
 </resources>

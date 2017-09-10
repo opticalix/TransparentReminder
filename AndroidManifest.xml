@@ -49,8 +49,13 @@
         <!--</receiver>-->
 
         <activity android:name="com.opticalix.component.AboutActivity"
+                  android:screenOrientation="portrait"
             />
         <activity android:name="com.opticalix.component.ColorPicActivity"
+                  android:screenOrientation="portrait"
+            />
+        <activity android:name="com.opticalix.component.TextSizePicActivity"
+                  android:screenOrientation="portrait"
             />
     </application>
 
