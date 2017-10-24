@@ -11,7 +11,7 @@
 
 
 #built application files
-*.apk
+#*.apk
 *.ap_
 
 # files for the dex VM
@@ -56,3 +56,6 @@ build/
 
 # Litepal build
 /libraries/litepal/build
+
+# captures
+/captures
